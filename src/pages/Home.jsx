@@ -5,28 +5,13 @@ import * as FiIcons from 'react-icons/fi'
 import SafeIcon from '../common/SafeIcon'
 import Button from '../components/UI/Button'
 import Card from '../components/UI/Card'
+import HeroSection from '../components/Hero/HeroSection'
 import { franchiseService } from '../lib/supabase'
 
 const {
-  FiSearch,
-  FiBarChart3,
-  FiMessageCircle,
-  FiShield,
-  FiTrendingUp,
-  FiFileText,
-  FiEye,
-  FiChevronRight,
-  FiChevronLeft,
-  FiMail,
-  FiCheck,
-  FiClock,
-  FiAward,
-  FiUsers,
-  FiTarget,
-  FiAlertCircle,
-  FiBook,
-  FiDatabase,
-  FiSettings
+  FiSearch, FiBarChart3, FiMessageCircle, FiShield, FiTrendingUp, FiFileText,
+  FiEye, FiChevronRight, FiChevronLeft, FiMail, FiCheck, FiClock, FiAward,
+  FiUsers, FiTarget, FiAlertCircle, FiBook, FiDatabase, FiSettings
 } = FiIcons
 
 const Home = () => {
@@ -245,38 +230,8 @@ const Home = () => {
 
   return (
     <div className="space-y-16">
-      {/* Hero Section */}
-      <motion.section
-        className="text-center space-y-8"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="space-y-6">
-          <h1 className="font-heading text-4xl md:text-6xl font-bold text-gray-900">
-            Navigate Australian{' '}
-            <span className="text-primary block">Franchising with Confidence</span>
-          </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Professional tools and expert insights to help you make informed franchise investment decisions. 
-            Built for compliance with Australian Franchising Code requirements.
-          </p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link to="/browse">
-            <Button size="lg" className="w-full sm:w-auto">
-              <SafeIcon icon={FiSearch} className="mr-2" />
-              Explore Franchises
-            </Button>
-          </Link>
-          <Link to="/ask-ai">
-            <Button variant="secondary" size="lg" className="w-full sm:w-auto">
-              <SafeIcon icon={FiMessageCircle} className="mr-2" />
-              Ask the AI
-            </Button>
-          </Link>
-        </div>
-      </motion.section>
+      {/* New Hero Section */}
+      <HeroSection />
 
       {/* Featured Franchise Profiles */}
       <motion.section
@@ -293,6 +248,7 @@ const Home = () => {
             Carefully selected franchise opportunities with comprehensive documentation
           </p>
         </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {featuredFranchises.map((franchise, index) => (
             <motion.div
@@ -345,6 +301,7 @@ const Home = () => {
             </motion.div>
           ))}
         </div>
+
         <div className="text-center">
           <Link to="/browse">
             <Button variant="secondary" size="lg">
@@ -370,6 +327,7 @@ const Home = () => {
             Professional-grade tools for franchise research and due diligence
           </p>
         </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {explorerTools.map((tool, index) => (
             <motion.div
@@ -440,6 +398,7 @@ const Home = () => {
               Stay informed about Australian franchising regulations and case law
             </p>
           </div>
+
           <div className="space-y-4">
             {legalNews.slice(0, 4).map((news, index) => (
               <Card key={news.id} className="p-4 hover:shadow-md transition-shadow">
@@ -468,6 +427,7 @@ const Home = () => {
               </Card>
             ))}
           </div>
+
           <Button variant="secondary" className="w-full">
             View All Legal Updates
           </Button>
@@ -488,6 +448,7 @@ const Home = () => {
               Professional guidance for franchise investors and operators
             </p>
           </div>
+
           <div className="space-y-6">
             {blogPosts.map((post, index) => (
               <Card key={post.id} className="p-6 hover:shadow-md transition-shadow">
@@ -523,6 +484,7 @@ const Home = () => {
               </Card>
             ))}
           </div>
+
           <Button variant="secondary" className="w-full">
             View All Posts
           </Button>
@@ -544,6 +506,7 @@ const Home = () => {
             Real feedback from franchise investors across Australia
           </p>
         </div>
+
         <div className="relative max-w-4xl mx-auto">
           <div className="flex items-center justify-center min-h-[120px]">
             <motion.div
@@ -568,6 +531,7 @@ const Home = () => {
               </div>
             </motion.div>
           </div>
+
           <div className="flex justify-center space-x-2 mt-4">
             {testimonials.map((_, index) => (
               <button
@@ -594,9 +558,10 @@ const Home = () => {
           Download Our Franchise Due Diligence Starter Pack
         </h2>
         <p className="text-lg mb-6 opacity-90 max-w-2xl mx-auto">
-          Get our comprehensive 25-page guide covering legal requirements, financial analysis, 
+          Get our comprehensive 25-page guide covering legal requirements, financial analysis,
           and essential questions to ask before investing in a franchise.
         </p>
+
         {subscribed ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -617,9 +582,9 @@ const Home = () => {
                 className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white/20"
                 required
               />
-              <Button 
-                type="submit" 
-                variant="secondary" 
+              <Button
+                type="submit"
+                variant="secondary"
                 className="bg-white text-primary hover:bg-gray-50"
               >
                 <SafeIcon icon={FiMail} className="w-4 h-4 mr-2" />
@@ -647,10 +612,12 @@ const Home = () => {
               Built for Australian Franchising Code Compliance
             </h3>
             <p className="text-gray-600 text-sm max-w-2xl mx-auto">
-              Our platform is designed to help users navigate Australian franchising regulations and requirements. 
-              All content is provided for educational purposes and should not be considered legal or financial advice.
+              Our platform is designed to help users navigate Australian franchising
+              regulations and requirements. All content is provided for educational
+              purposes and should not be considered legal or financial advice.
             </p>
           </div>
+
           <div className="flex items-center justify-center space-x-8 opacity-60">
             <div className="flex items-center space-x-2">
               <SafeIcon icon={FiShield} className="w-5 h-5" />
@@ -665,10 +632,12 @@ const Home = () => {
               <span className="text-sm font-medium">Legal Framework</span>
             </div>
           </div>
+
           <div className="text-xs text-gray-500 pt-4 border-t border-gray-200">
             <p>
-              This platform provides educational resources and tools for franchise research. 
-              Always consult with qualified legal and financial professionals before making investment decisions.
+              This platform provides educational resources and tools for franchise research.
+              Always consult with qualified legal and financial professionals before making
+              investment decisions.
             </p>
           </div>
         </div>

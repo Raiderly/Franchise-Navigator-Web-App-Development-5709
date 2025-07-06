@@ -1,96 +1,178 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <meta name="description" content="Franchise Navigator - Find your perfect franchise opportunity with data-driven insights and comprehensive comparisons." />
-  <meta name="keywords" content="franchise,business opportunity,investment,ROI,franchise comparison" />
-  <title>Franchise Navigator - Find Your Perfect Franchise Opportunity</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-</head>
-<body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.jsx"></script>
-  
-  <!-- LiveAgent Debug Console Log -->
-  <script>
-    console.log('🔍 LiveAgent Debug: HTML loaded, waiting for React app...')
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Franchise Navigator - Find your perfect franchise opportunity with data-driven insights and comprehensive comparisons." />
+    <meta name="keywords" content="franchise, business opportunity, investment, ROI, franchise comparison" />
+    <title>Franchise Navigator - Find Your Perfect Franchise Opportunity</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    // Monitor LiveAgent loading
-    let checkCount = 0
-    const maxChecks = 20
-    const monitorLiveAgent = () => {
-      checkCount++
-      if (window.LiveAgent) {
-        console.log('✅ LiveAgent detected in production! Check count:', checkCount)
-        console.log('LiveAgent object:', window.LiveAgent)
-      } else if (checkCount < maxChecks) {
-        setTimeout(monitorLiveAgent, 1000)
-      } else {
-        console.warn('⚠️ LiveAgent not detected after 20 seconds')
+    <!-- Wistia Player Scripts - Multiple Methods -->
+    <script src="https://fast.wistia.com/player.js" async></script>
+    <script src="https://fast.wistia.com/assets/external/E-v1.js" async></script>
+    <script src="https://fast.wistia.com/embed/xjm8bzabrc.js" async type="module"></script>
+    
+    <!-- Wistia Player Styles -->
+    <style>
+      wistia-player[media-id='xjm8bzabrc']:not(:defined) {
+        background: center / contain no-repeat url('https://fast.wistia.com/embed/medias/xjm8bzabrc/swatch');
+        display: block;
+        filter: blur(5px);
+        padding-top: 55.94%;
       }
-    }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
     
-    // Start monitoring after DOM is ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(monitorLiveAgent, 1000)
-      })
-    } else {
-      setTimeout(monitorLiveAgent, 1000)
-    }
-  </script>
-  
-  <!-- LiveAgent Primary Script - Guaranteed Loading -->
-  <script type="text/javascript">
-    console.log('🚀 Loading LiveAgent primary script from HTML...')
-    
-    ;(function(d, src, c) {
-      var t = d.scripts[d.scripts.length - 1], s = d.createElement('script');
-      s.id = 'la_x2s6df8d';
-      s.defer = true;
-      s.src = src;
-      s.onload = s.onreadystatechange = function() {
-        var rs = this.readyState;
-        if (rs && rs !== 'complete' && rs !== 'loaded') return;
-        try {
-          console.log('📞 LiveAgent HTML script loaded successfully!')
-          c(this);
-          console.log('✅ LiveAgent button created from HTML fallback')
-        } catch (error) {
-          console.error('❌ Error in LiveAgent HTML script:', error)
+    <!-- Wistia Global Functions -->
+    <script>
+      // Multiple Wistia integration methods
+      window.playWistiaVideo = function(mediaId) {
+        console.log('🎬 Global Wistia function called with:', mediaId)
+        
+        // Method 1: API popup
+        if (window.Wistia && window.Wistia.api) {
+          try {
+            const video = window.Wistia.api(mediaId)
+            if (video && typeof video.popup === 'function') {
+              video.popup()
+              console.log('✅ Wistia popup via API')
+              return true
+            }
+          } catch (error) {
+            console.error('❌ Wistia API popup failed:', error)
+          }
         }
-      };
-      s.onerror = function() {
-        console.error('❌ Failed to load LiveAgent script from HTML')
+        
+        // Method 2: Popover
+        if (window.Wistia && window.Wistia.popover) {
+          try {
+            window.Wistia.popover(mediaId, {
+              aspectRatio: 1.78,
+              popoverAnimateThumbnail: true
+            })
+            console.log('✅ Wistia popover launched')
+            return true
+          } catch (error) {
+            console.error('❌ Wistia popover failed:', error)
+          }
+        }
+        
+        console.warn('⚠️ Wistia not ready, trying fallback...')
+        // Fallback retry
+        setTimeout(() => {
+          if (window.Wistia && window.Wistia.popover) {
+            window.Wistia.popover(mediaId, { aspectRatio: 1.78 })
+          }
+        }, 1000)
+        
+        return false
       }
       
-      // Insert script with fallback
-      try {
-        if (t && t.parentElement) {
-          t.parentElement.insertBefore(s, t.nextSibling);
-          console.log('📝 LiveAgent script inserted via HTML method')
+      // Monitor Wistia loading
+      let wistiaCheckCount = 0
+      const maxChecks = 30
+      const monitorWistia = () => {
+        wistiaCheckCount++
+        if (window.Wistia) {
+          console.log('✅ Wistia loaded successfully! Available methods:', Object.keys(window.Wistia))
+          if (window.Wistia.api) console.log('✅ Wistia API available')
+          if (window.Wistia.popover) console.log('✅ Wistia popover available')
+        } else if (wistiaCheckCount < maxChecks) {
+          setTimeout(monitorWistia, 500)
         } else {
-          document.head.appendChild(s);
-          console.log('📝 LiveAgent script inserted via head fallback')
+          console.warn('⚠️ Wistia not detected after 15 seconds')
         }
-      } catch (e) {
-        console.error('❌ Failed to insert LiveAgent script:', e)
       }
-    })(document, 'https://davidayadcom.ladesk.com/scripts/track.js', function(e) {
-      try {
-        if (window.LiveAgent && typeof window.LiveAgent.createButton === 'function') {
-          window.LiveAgent.createButton('v6a7abo2', e);
-          console.log('🎯 LiveAgent button created with ID: v6a7abo2 (HTML method)')
+      
+      // Start monitoring after DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          setTimeout(monitorWistia, 500)
+        })
+      } else {
+        setTimeout(monitorWistia, 500)
+      }
+    </script>
+    
+    <!-- LiveAgent Debug Console Log -->
+    <script>
+      console.log('🔍 LiveAgent Debug: HTML loaded, waiting for React app...')
+      // Monitor LiveAgent loading
+      let checkCount = 0
+      const maxChecks = 20
+      const monitorLiveAgent = () => {
+        checkCount++
+        if (window.LiveAgent) {
+          console.log('✅ LiveAgent detected in production! Check count:', checkCount)
+          console.log('LiveAgent object:', window.LiveAgent)
+        } else if (checkCount < maxChecks) {
+          setTimeout(monitorLiveAgent, 1000)
         } else {
-          console.warn('⚠️ LiveAgent.createButton not available from HTML script')
+          console.warn('⚠️ LiveAgent not detected after 20 seconds')
         }
-      } catch (error) {
-        console.error('❌ Error creating LiveAgent button from HTML:', error)
       }
-    });
-  </script>
-</body>
+      // Start monitoring after DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          setTimeout(monitorLiveAgent, 1000)
+        })
+      } else {
+        setTimeout(monitorLiveAgent, 1000)
+      }
+    </script>
+    
+    <!-- LiveAgent Primary Script - Guaranteed Loading -->
+    <script type="text/javascript">
+      console.log('🚀 Loading LiveAgent primary script from HTML...')
+      ;(function(d, src, c) {
+        var t = d.scripts[d.scripts.length - 1], s = d.createElement('script');
+        s.id = 'la_x2s6df8d';
+        s.defer = true;
+        s.src = src;
+        s.onload = s.onreadystatechange = function() {
+          var rs = this.readyState;
+          if (rs && rs !== 'complete' && rs !== 'loaded') return;
+          try {
+            console.log('📞 LiveAgent HTML script loaded successfully!')
+            c(this);
+            console.log('✅ LiveAgent button created from HTML fallback')
+          } catch (error) {
+            console.error('❌ Error in LiveAgent HTML script:', error)
+          }
+        };
+        s.onerror = function() {
+          console.error('❌ Failed to load LiveAgent script from HTML')
+        }
+        // Insert script with fallback
+        try {
+          if (t && t.parentElement) {
+            t.parentElement.insertBefore(s, t.nextSibling);
+            console.log('📝 LiveAgent script inserted via HTML method')
+          } else {
+            document.head.appendChild(s);
+            console.log('📝 LiveAgent script inserted via head fallback')
+          }
+        } catch (e) {
+          console.error('❌ Failed to insert LiveAgent script:', e)
+        }
+      })(document, 'https://davidayadcom.ladesk.com/scripts/track.js', function(e) {
+        try {
+          if (window.LiveAgent && typeof window.LiveAgent.createButton === 'function') {
+            window.LiveAgent.createButton('v6a7abo2', e);
+            console.log('🎯 LiveAgent button created with ID: v6a7abo2 (HTML method)')
+          } else {
+            console.warn('⚠️ LiveAgent.createButton not available from HTML script')
+          }
+        } catch (error) {
+          console.error('❌ Error creating LiveAgent button from HTML:', error)
+        }
+      });
+    </script>
+  </body>
 </html>
