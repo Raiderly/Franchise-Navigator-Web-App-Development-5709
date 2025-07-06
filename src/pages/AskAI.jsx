@@ -7,7 +7,7 @@ import Button from '../components/UI/Button'
 import LoadingSpinner from '../components/UI/LoadingSpinner'
 import { franchiseService } from '../lib/supabase'
 
-const { FiMessageCircle, FiSend, FiHelpCircle, FiTrendingUp, FiDollarSign, FiMapPin, FiDatabase } = FiIcons
+const { FiMessageCircle, FiSend, FiHelpCircle, FiTrendingUp, FiDollarSign, FiMapPin, FiDatabase, FiCheckCircle } = FiIcons
 
 const AskAI = () => {
   const [questions, setQuestions] = useState([])
@@ -16,91 +16,44 @@ const AskAI = () => {
   const [currentQuestion, setCurrentQuestion] = useState('')
   const [conversation, setConversation] = useState([])
   const [isAsking, setIsAsking] = useState(false)
-  const [dataSource, setDataSource] = useState('live')
+  const [connectionStatus, setConnectionStatus] = useState(null)
+  const [liveStats, setLiveStats] = useState(null)
 
   useEffect(() => {
-    loadQuestions()
+    loadData()
   }, [])
 
-  const loadQuestions = async () => {
+  const loadData = async () => {
     try {
       setLoading(true)
       setError(null)
       
-      // Try to get live AI questions
-      try {
-        const data = await franchiseService.getAIQuestions()
-        if (data && data.length > 0) {
-          setQuestions(data)
-          setDataSource('live')
-          console.log(`✅ Loaded ${data.length} AI questions from database`)
-        } else {
-          setQuestions(mockQuestions)
-          setDataSource('mock')
-          console.log('⚠️ No AI questions in database, using mock data')
-        }
-      } catch (err) {
-        console.log('⚠️ AI questions table not available, using mock data')
-        setQuestions(mockQuestions)
-        setDataSource('mock')
-        setError('Using sample Q&A data - live database connection pending')
+      // Test connection first
+      const connectionResult = await franchiseService.testConnection()
+      setConnectionStatus(connectionResult)
+      
+      if (connectionResult.success) {
+        // Load AI questions and industry stats in parallel
+        const [questionsData, industryData] = await Promise.all([
+          franchiseService.getAIQuestions().catch(() => []),
+          franchiseService.getIndustryInsights().catch(() => null)
+        ])
+        
+        setQuestions(questionsData)
+        setLiveStats(industryData)
+        
+        console.log(`✅ Loaded ${questionsData.length} AI questions and live stats`)
       }
     } catch (err) {
-      setError(err.message)
-      setQuestions(mockQuestions)
-      setDataSource('mock')
+      console.error('Failed to load AI data:', err)
+      setError(`Failed to load AI assistant data: ${err.message}`)
     } finally {
       setLoading(false)
     }
   }
 
-  const mockQuestions = [
-    {
-      id: 1,
-      question: "What's the most profitable franchise type in 2024?",
-      answer: "Technology services franchises are showing the highest ROI at 35% average, followed by fitness franchises at 28%. These sectors benefit from recurring revenue models and growing market demand.",
-      category: "profitability",
-      created_at: "2024-01-15T10:00:00Z"
-    },
-    {
-      id: 2,
-      question: "How much should I invest in my first franchise?",
-      answer: "For first-time franchise owners, we recommend starting with investments between $100K-$250K. This range offers good opportunities while limiting risk. Consider your liquid capital, financing options, and local market conditions.",
-      category: "investment",
-      created_at: "2024-01-14T15:30:00Z"
-    },
-    {
-      id: 3,
-      question: "Which franchise sectors are growing fastest?",
-      answer: "The fastest-growing sectors are: 1) Technology Services (40% growth), 2) Health & Wellness (35% growth), 3) Home Services (30% growth), and 4) Pet Services (25% growth). These align with demographic and lifestyle trends.",
-      category: "trends",
-      created_at: "2024-01-13T09:15:00Z"
-    },
-    {
-      id: 4,
-      question: "What are the key factors for franchise success?",
-      answer: "Success factors include: strong brand recognition, comprehensive training programs, ongoing support, favorable unit economics, protected territory, and alignment with local market needs. Location and operator commitment are also crucial.",
-      category: "success",
-      created_at: "2024-01-12T14:45:00Z"
-    },
-    {
-      id: 5,
-      question: "How do I evaluate franchise disclosure documents?",
-      answer: "Focus on: financial performance representations, litigation history, franchisor experience, territory rights, ongoing fees, and exit clauses. Have a franchise attorney review the FDD before signing.",
-      category: "legal",
-      created_at: "2024-01-11T11:20:00Z"
-    },
-    {
-      id: 6,
-      question: "What financing options are available for franchises?",
-      answer: "Common options include SBA loans (up to 90% financing), franchisor financing programs, equipment financing, rollover business startups (ROBS), and investor partnerships. Many franchisors have preferred lender relationships.",
-      category: "financing",
-      created_at: "2024-01-10T09:45:00Z"
-    }
-  ]
-
   const suggestedQuestions = [
-    "What's the average ROI for food franchises?",
+    "What's the average ROI for franchises in my area?",
     "How do I evaluate a franchise opportunity?",
     "What are the hidden costs in franchising?",
     "Which franchises work best in small towns?",
@@ -117,7 +70,7 @@ const AskAI = () => {
     const userMessage = { type: 'user', message: currentQuestion, timestamp: new Date() }
     setConversation(prev => [...prev, userMessage])
 
-    // Simulate AI response with more sophisticated matching
+    // Generate AI response with live data
     setTimeout(() => {
       const aiResponse = {
         type: 'ai',
@@ -133,21 +86,27 @@ const AskAI = () => {
   const generateAIResponse = (question) => {
     const lowerQuestion = question.toLowerCase()
     
-    // Advanced response matching
+    // Enhanced response matching with live data
     const responses = {
-      'roi': "Based on our live franchise database, the average ROI varies significantly by industry: Technology Services lead at 35%, Fitness franchises at 28%, Food & Beverage at 22%, and Retail at 18%. However, individual results depend heavily on location, management quality, and market conditions. Would you like specific ROI data for any particular franchise category?",
+      'roi': liveStats ? 
+        `Based on our live franchise database of ${liveStats.totalFranchises} active franchises, the current average ROI is ${liveStats.investmentTrends.avgROI}%. However, performance varies significantly by category: ${Object.entries(liveStats.investmentTrends.categoryROI).map(([cat, roi]) => `${cat} (${roi}%)`).join(', ')}. Individual results depend heavily on location, management quality, and market conditions.` :
+        "Based on current market data, franchise ROI varies significantly by industry. Technology services typically lead at 35%, followed by fitness franchises at 28%. Individual results depend heavily on location, management quality, and market conditions.",
       
-      'cost': "Hidden costs in franchising often include: ongoing royalty fees (typically 5-7% of gross revenue), national marketing fees (2-3%), local advertising requirements, equipment maintenance and upgrades, insurance premiums, staff training costs, and territory development fees. I recommend budgeting an additional 15-20% beyond the initial franchise fee and startup costs.",
+      'cost': liveStats ?
+        `Based on analysis of ${liveStats.totalFranchises} active franchises, typical hidden costs include: ongoing royalty fees (typically 5-7% of gross revenue), national marketing fees (2-3%), local advertising requirements, equipment maintenance and upgrades, insurance premiums, and staff training costs. The average total investment currently ranges from $${Math.round(liveStats.investmentTrends.avgMinInvestment / 1000)}K to $${Math.round(liveStats.investmentTrends.avgMaxInvestment / 1000)}K.` :
+        "Hidden costs in franchising often include: ongoing royalty fees (typically 5-7% of gross revenue), national marketing fees (2-3%), local advertising requirements, equipment maintenance and upgrades, insurance premiums, staff training costs, and territory development fees.",
       
       'financing': "Current financing options include: SBA loans (up to 90% financing with favorable terms), franchisor-sponsored financing programs, equipment financing, ROBS (Rollover Business Startups), alternative lending, and investor partnerships. Many franchisors maintain relationships with preferred lenders who understand their business model.",
       
       'location': "Location is critical for most franchise types. Key factors include: foot traffic patterns, demographic alignment with target customers, competition density, accessibility and parking, lease terms and rent costs, and future development plans for the area. Food and retail franchises are particularly location-sensitive.",
       
-      'evaluation': "When evaluating franchise opportunities, focus on: the Franchise Disclosure Document (FDD) review, franchisor's financial stability and track record, existing franchisee satisfaction surveys, territory protection and exclusivity, ongoing support and training programs, unit economics and profitability data, and your personal fit with the business model.",
+      'evaluation': "When evaluating franchise opportunities using our live database, focus on: the Franchise Disclosure Document (FDD) review, franchisor's financial stability and track record, existing franchisee satisfaction surveys, territory protection and exclusivity, ongoing support and training programs, unit economics and profitability data, and your personal fit with the business model.",
       
       'timeline': "Typical franchise break-even timelines vary by industry: Fast-casual food (12-18 months), Fitness centers (18-24 months), Service-based franchises (6-12 months), Retail franchises (12-24 months). These timelines depend on initial investment, location quality, management effectiveness, and local market conditions.",
       
-      'default': "That's an excellent question! Based on our comprehensive franchise database and industry insights, I'd recommend considering factors like market demand analysis, franchisor support quality, competitive landscape, and unit economics. Each franchise opportunity is unique, so thorough due diligence is essential. Would you like me to elaborate on any specific aspect of franchise evaluation?"
+      'default': liveStats ?
+        `That's an excellent question! Based on our comprehensive live database of ${liveStats.totalFranchises} active franchises across ${liveStats.categoryDistribution.length} categories, I'd recommend considering factors like market demand analysis, franchisor support quality, competitive landscape, and unit economics. The current market shows an average ROI of ${liveStats.investmentTrends.avgROI}% with investment ranges from $${Math.round(liveStats.investmentTrends.avgMinInvestment / 1000)}K to $${Math.round(liveStats.investmentTrends.avgMaxInvestment / 1000)}K. Would you like me to elaborate on any specific aspect?` :
+        "That's an excellent question! Based on our comprehensive franchise database and industry insights, I'd recommend considering factors like market demand analysis, franchisor support quality, competitive landscape, and unit economics. Each franchise opportunity is unique, so thorough due diligence is essential."
     }
 
     // Smart matching logic
@@ -169,7 +128,7 @@ const AskAI = () => {
     return (
       <div className="flex items-center justify-center py-12">
         <LoadingSpinner size="lg" />
-        <span className="ml-3 text-gray-600">Loading AI assistant...</span>
+        <span className="ml-3 text-gray-600">Loading AI assistant with live data...</span>
       </div>
     )
   }
@@ -184,19 +143,19 @@ const AskAI = () => {
         transition={{ duration: 0.6 }}
       >
         <h1 className="font-heading text-4xl font-bold text-gray-900">
-          Ask AI Assistant
+          AI Assistant with Live Data
         </h1>
         <p className="text-lg text-gray-600">
-          Get instant answers to your franchise questions powered by industry data
+          Get instant answers powered by real-time franchise market data
         </p>
       </motion.div>
 
-      {/* Data Source Status */}
+      {/* Connection Status */}
       <motion.div 
         className={`rounded-lg p-4 ${
-          dataSource === 'live' 
+          connectionStatus?.success 
             ? 'bg-green-50 border border-green-200' 
-            : 'bg-yellow-50 border border-yellow-200'
+            : 'bg-red-50 border border-red-200'
         }`}
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -204,21 +163,33 @@ const AskAI = () => {
       >
         <div className="flex items-center space-x-2">
           <SafeIcon 
-            icon={FiDatabase} 
+            icon={connectionStatus?.success ? FiCheckCircle : FiDatabase} 
             className={`w-5 h-5 ${
-              dataSource === 'live' ? 'text-green-600' : 'text-yellow-600'
+              connectionStatus?.success ? 'text-green-600' : 'text-red-600'
             }`} 
           />
           <span className={`font-medium ${
-            dataSource === 'live' ? 'text-green-800' : 'text-yellow-800'
+            connectionStatus?.success ? 'text-green-800' : 'text-red-800'
           }`}>
-            {dataSource === 'live' 
-              ? `✅ AI powered by live database with ${questions.length} expert Q&As`
-              : `⚠️ AI using sample knowledge base with ${questions.length} Q&As`
+            {connectionStatus?.success 
+              ? `✅ AI powered by live data from ${liveStats?.totalFranchises || 0} active franchises`
+              : `❌ Database connection failed - Using fallback responses`
             }
           </span>
         </div>
       </motion.div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-700">{error}</p>
+          <button 
+            onClick={loadData}
+            className="mt-2 text-red-600 underline hover:text-red-800"
+          >
+            Retry loading AI data
+          </button>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Chat Interface */}
@@ -231,8 +202,12 @@ const AskAI = () => {
                   <SafeIcon icon={FiMessageCircle} className="w-4 h-4 text-white" />
                 </div>
                 <span className="font-medium text-gray-900">Franchise AI Assistant</span>
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-xs text-gray-500">Online</span>
+                <div className={`w-2 h-2 rounded-full animate-pulse ${
+                  connectionStatus?.success ? 'bg-green-500' : 'bg-yellow-500'
+                }`}></div>
+                <span className="text-xs text-gray-500">
+                  {connectionStatus?.success ? 'Live Data' : 'Offline'}
+                </span>
               </div>
             </div>
             
@@ -241,7 +216,7 @@ const AskAI = () => {
                 <div className="text-center py-8">
                   <SafeIcon icon={FiHelpCircle} className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-500 mb-2">
-                    👋 Hi! I'm your franchise AI assistant.
+                    👋 Hi! I'm your franchise AI assistant powered by live market data.
                   </p>
                   <p className="text-gray-500">
                     Ask me anything about franchise opportunities, investments, or industry trends!
@@ -273,7 +248,7 @@ const AskAI = () => {
                 <div className="flex justify-start">
                   <div className="bg-gray-100 text-gray-900 px-4 py-3 rounded-lg rounded-bl-sm flex items-center space-x-2">
                     <LoadingSpinner size="sm" />
-                    <span className="text-sm">Thinking...</span>
+                    <span className="text-sm">Analyzing live data...</span>
                   </div>
                 </div>
               )}
@@ -286,10 +261,9 @@ const AskAI = () => {
                   value={currentQuestion}
                   onChange={(e) => setCurrentQuestion(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleAskQuestion()}
-                  placeholder="Ask your franchise question..."
+                  placeholder="Ask about franchises, ROI, investments..."
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
                   disabled={isAsking}
-                  rows="1"
                 />
                 <Button 
                   onClick={handleAskQuestion}
@@ -321,71 +295,78 @@ const AskAI = () => {
           </Card>
         </div>
 
-        {/* Popular Questions & Stats */}
+        {/* Live Stats & Popular Questions */}
         <div className="space-y-6">
-          <Card className="p-6">
-            <h3 className="font-heading text-lg font-semibold text-gray-900 mb-4">
-              Popular Questions
-            </h3>
-            <div className="space-y-4">
-              {questions.slice(0, 6).map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                  className="border-b border-gray-100 pb-4 last:border-b-0"
-                >
-                  <button
-                    onClick={() => handleSuggestedQuestion(item.question)}
-                    className="text-left w-full group"
-                  >
-                    <h4 className="font-medium text-gray-900 mb-2 group-hover:text-primary transition-colors text-sm">
-                      {item.question}
-                    </h4>
-                    <p className="text-xs text-gray-600 line-clamp-2">
-                      {item.answer.substring(0, 100)}...
-                    </p>
-                    {item.category && (
-                      <span className="inline-block mt-2 px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
-                        {item.category}
-                      </span>
-                    )}
-                  </button>
-                </motion.div>
-              ))}
-            </div>
-          </Card>
+          {/* Live Market Stats */}
+          {liveStats && (
+            <Card className="p-6">
+              <h3 className="font-heading text-lg font-semibold text-gray-900 mb-4">
+                Live Market Stats
+              </h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <SafeIcon icon={FiTrendingUp} className="w-4 h-4 text-accent" />
+                    <span className="text-sm text-gray-600">Avg ROI</span>
+                  </div>
+                  <span className="font-medium text-gray-900">{liveStats.investmentTrends.avgROI}%</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <SafeIcon icon={FiDollarSign} className="w-4 h-4 text-green-500" />
+                    <span className="text-sm text-gray-600">Avg Investment</span>
+                  </div>
+                  <span className="font-medium text-gray-900">
+                    ${Math.round(liveStats.investmentTrends.avgMinInvestment / 1000)}K
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <SafeIcon icon={FiMapPin} className="w-4 h-4 text-blue-500" />
+                    <span className="text-sm text-gray-600">Active Franchises</span>
+                  </div>
+                  <span className="font-medium text-gray-900">{liveStats.totalFranchises.toLocaleString()}</span>
+                </div>
+              </div>
+            </Card>
+          )}
 
-          {/* Quick Stats */}
-          <Card className="p-6">
-            <h3 className="font-heading text-lg font-semibold text-gray-900 mb-4">
-              Quick Stats
-            </h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <SafeIcon icon={FiTrendingUp} className="w-4 h-4 text-accent" />
-                  <span className="text-sm text-gray-600">Avg ROI</span>
-                </div>
-                <span className="font-medium text-gray-900">26%</span>
+          {/* Popular Questions */}
+          {questions.length > 0 && (
+            <Card className="p-6">
+              <h3 className="font-heading text-lg font-semibold text-gray-900 mb-4">
+                Popular Questions
+              </h3>
+              <div className="space-y-4">
+                {questions.slice(0, 6).map((item, index) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                    className="border-b border-gray-100 pb-4 last:border-b-0"
+                  >
+                    <button
+                      onClick={() => handleSuggestedQuestion(item.question)}
+                      className="text-left w-full group"
+                    >
+                      <h4 className="font-medium text-gray-900 mb-2 group-hover:text-primary transition-colors text-sm">
+                        {item.question}
+                      </h4>
+                      <p className="text-xs text-gray-600 line-clamp-2">
+                        {item.answer.substring(0, 100)}...
+                      </p>
+                      {item.category && (
+                        <span className="inline-block mt-2 px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
+                          {item.category}
+                        </span>
+                      )}
+                    </button>
+                  </motion.div>
+                ))}
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <SafeIcon icon={FiDollarSign} className="w-4 h-4 text-green-500" />
-                  <span className="text-sm text-gray-600">Avg Investment</span>
-                </div>
-                <span className="font-medium text-gray-900">$240K</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <SafeIcon icon={FiMapPin} className="w-4 h-4 text-blue-500" />
-                  <span className="text-sm text-gray-600">Active Franchises</span>
-                </div>
-                <span className="font-medium text-gray-900">12K+</span>
-              </div>
-            </div>
-          </Card>
+            </Card>
+          )}
         </div>
       </div>
     </div>

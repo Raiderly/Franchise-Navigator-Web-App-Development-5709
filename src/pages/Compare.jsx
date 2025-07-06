@@ -7,14 +7,14 @@ import Button from '../components/UI/Button'
 import LoadingSpinner from '../components/UI/LoadingSpinner'
 import { franchiseService } from '../lib/supabase'
 
-const { FiBarChart3, FiDollarSign, FiTrendingUp, FiMapPin, FiUsers, FiClock, FiDatabase } = FiIcons
+const { FiBarChart3, FiDollarSign, FiTrendingUp, FiMapPin, FiUsers, FiClock, FiDatabase, FiCheckCircle } = FiIcons
 
 const Compare = () => {
   const [franchises, setFranchises] = useState([])
   const [selectedFranchises, setSelectedFranchises] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [dataSource, setDataSource] = useState('live')
+  const [connectionStatus, setConnectionStatus] = useState(null)
 
   useEffect(() => {
     loadFranchises()
@@ -25,115 +25,26 @@ const Compare = () => {
       setLoading(true)
       setError(null)
       
-      // Try to get live data first
-      try {
-        const result = await franchiseService.getFranchiseRecords()
-        setFranchises(result.data)
-        setDataSource('live')
-        console.log(`✅ Loaded ${result.data.length} franchise records for comparison`)
-      } catch (liveError) {
-        console.log('⚠️ Live data not available, using mock data')
-        setFranchises(mockFranchises)
-        setDataSource('mock')
-        setError('Using sample data - live database connection pending')
+      // Test connection first
+      const connectionResult = await franchiseService.testConnection()
+      setConnectionStatus(connectionResult)
+      
+      if (!connectionResult.success) {
+        throw new Error('Database connection failed')
       }
+
+      // Load franchise data
+      const franchiseData = await franchiseService.getAllFranchises()
+      setFranchises(franchiseData)
+      
+      console.log(`✅ Loaded ${franchiseData.length} franchises for comparison`)
     } catch (err) {
       console.error('Failed to load franchises:', err)
-      setError(err.message)
-      setFranchises(mockFranchises)
-      setDataSource('mock')
+      setError(`Failed to load franchise data: ${err.message}`)
     } finally {
       setLoading(false)
     }
   }
-
-  const mockFranchises = [
-    {
-      id: 1,
-      name: 'Premium Burger Co.',
-      category: 'Food & Beverage',
-      description: 'Gourmet burger franchise with premium ingredients',
-      investment_min: 150000,
-      investment_max: 300000,
-      roi_percentage: 25,
-      locations: 450,
-      franchise_fee: 45000,
-      royalty_fee: 6,
-      marketing_fee: 2,
-      territory_size: 50000,
-      training_duration: 4,
-      support_rating: 4.5,
-      image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop'
-    },
-    {
-      id: 2,
-      name: 'FitZone Gym',
-      category: 'Fitness & Health',
-      description: '24/7 fitness center with modern equipment',
-      investment_min: 200000,
-      investment_max: 500000,
-      roi_percentage: 30,
-      locations: 320,
-      franchise_fee: 60000,
-      royalty_fee: 7,
-      marketing_fee: 3,
-      territory_size: 75000,
-      training_duration: 6,
-      support_rating: 4.8,
-      image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop'
-    },
-    {
-      id: 3,
-      name: 'TechFix Solutions',
-      category: 'Technology Services',
-      description: 'Computer and mobile device repair services',
-      investment_min: 75000,
-      investment_max: 150000,
-      roi_percentage: 35,
-      locations: 180,
-      franchise_fee: 35000,
-      royalty_fee: 5,
-      marketing_fee: 2,
-      territory_size: 30000,
-      training_duration: 3,
-      support_rating: 4.2,
-      image: 'https://images.unsplash.com/photo-1581092795442-6d4b8b4a5f4b?w=400&h=300&fit=crop'
-    },
-    {
-      id: 4,
-      name: 'Coffee Corner',
-      category: 'Food & Beverage',
-      description: 'Specialty coffee and pastries',
-      investment_min: 80000,
-      investment_max: 180000,
-      roi_percentage: 24,
-      locations: 520,
-      franchise_fee: 30000,
-      royalty_fee: 5.5,
-      marketing_fee: 2.5,
-      territory_size: 25000,
-      training_duration: 2,
-      support_rating: 4.3,
-      image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&h=300&fit=crop'
-    },
-    {
-      id: 5,
-      name: 'Auto Care Plus',
-      category: 'Automotive Services',
-      description: 'Full-service automotive maintenance and repair',
-      investment_min: 250000,
-      investment_max: 400000,
-      roi_percentage: 22,
-      locations: 150,
-      franchise_fee: 55000,
-      royalty_fee: 6.5,
-      marketing_fee: 2,
-      territory_size: 100000,
-      training_duration: 8,
-      support_rating: 4.6,
-      image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400&h=300&fit=crop'
-    }
-  ]
 
   const handleFranchiseSelect = (franchise) => {
     if (selectedFranchises.find(f => f.id === franchise.id)) {
@@ -147,24 +58,75 @@ const Compare = () => {
     setSelectedFranchises([])
   }
 
+  const formatValue = (value, type = 'text') => {
+    if (value === null || value === undefined) return 'N/A'
+    
+    switch (type) {
+      case 'currency':
+        return `$${value.toLocaleString()}`
+      case 'percentage':
+        return `${value}%`
+      case 'number':
+        return value.toLocaleString()
+      default:
+        return value || 'N/A'
+    }
+  }
+
+  const getComparisonValue = (franchise, metric) => {
+    switch (metric.key) {
+      case 'total_investment_min':
+        return franchise.total_investment_min || 
+               (franchise.franchise_investments?.[0]?.min_investment)
+      case 'total_investment_max':
+        return franchise.total_investment_max || 
+               (franchise.franchise_investments?.[0]?.max_investment)
+      case 'franchise_fee':
+        return franchise.franchise_fee || 
+               (franchise.franchise_fees?.[0]?.initial_fee)
+      case 'estimated_roi':
+        return franchise.estimated_roi || franchise.average_roi
+      case 'royalty_fee':
+        return franchise.royalty_fee || 
+               (franchise.franchise_fees?.[0]?.royalty_percentage)
+      case 'marketing_fee':
+        return franchise.marketing_fee || 
+               (franchise.franchise_fees?.[0]?.marketing_fee_percentage)
+      case 'total_locations':
+        return franchise.total_locations || 
+               (franchise.franchise_locations?.reduce((sum, loc) => sum + (loc.count || 0), 0))
+      case 'territory_population':
+        return franchise.territory_population || 
+               (franchise.franchise_support?.[0]?.territory_size)
+      case 'training_duration':
+        return franchise.training_duration || 
+               (franchise.franchise_support?.[0]?.training_weeks)
+      case 'support_rating':
+        return franchise.support_rating || 
+               (franchise.franchise_support?.[0]?.support_score)
+      default:
+        return franchise[metric.key]
+    }
+  }
+
   const comparisonMetrics = [
-    { key: 'investment_min', label: 'Min Investment', icon: FiDollarSign, format: (val) => val ? `$${val.toLocaleString()}` : 'N/A' },
-    { key: 'investment_max', label: 'Max Investment', icon: FiDollarSign, format: (val) => val ? `$${val.toLocaleString()}` : 'N/A' },
-    { key: 'franchise_fee', label: 'Franchise Fee', icon: FiDollarSign, format: (val) => val ? `$${val.toLocaleString()}` : 'N/A' },
-    { key: 'roi_percentage', label: 'ROI', icon: FiTrendingUp, format: (val) => val ? `${val}%` : 'N/A' },
-    { key: 'royalty_fee', label: 'Royalty Fee', icon: FiDollarSign, format: (val) => val ? `${val}%` : 'N/A' },
-    { key: 'marketing_fee', label: 'Marketing Fee', icon: FiDollarSign, format: (val) => val ? `${val}%` : 'N/A' },
-    { key: 'locations', label: 'Total Locations', icon: FiMapPin, format: (val) => val ? val.toLocaleString() : 'N/A' },
-    { key: 'territory_size', label: 'Territory Size', icon: FiMapPin, format: (val) => val ? `${val.toLocaleString()} pop.` : 'N/A' },
-    { key: 'training_duration', label: 'Training Duration', icon: FiClock, format: (val) => val ? `${val} weeks` : 'N/A' },
-    { key: 'support_rating', label: 'Support Rating', icon: FiUsers, format: (val) => val ? `${val}/5` : 'N/A' },
+    { key: 'total_investment_min', label: 'Min Investment', icon: FiDollarSign, type: 'currency' },
+    { key: 'total_investment_max', label: 'Max Investment', icon: FiDollarSign, type: 'currency' },
+    { key: 'franchise_fee', label: 'Franchise Fee', icon: FiDollarSign, type: 'currency' },
+    { key: 'estimated_roi', label: 'Estimated ROI', icon: FiTrendingUp, type: 'percentage' },
+    { key: 'royalty_fee', label: 'Royalty Fee', icon: FiDollarSign, type: 'percentage' },
+    { key: 'marketing_fee', label: 'Marketing Fee', icon: FiDollarSign, type: 'percentage' },
+    { key: 'total_locations', label: 'Total Locations', icon: FiMapPin, type: 'number' },
+    { key: 'territory_population', label: 'Territory Size', icon: FiMapPin, type: 'number' },
+    { key: 'training_duration', label: 'Training Duration (weeks)', icon: FiClock, type: 'number' },
+    { key: 'support_rating', label: 'Support Rating', icon: FiUsers, type: 'text' },
   ]
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
         <LoadingSpinner size="lg" />
-        <span className="ml-3 text-gray-600">Loading comparison data...</span>
+        <span className="ml-3 text-gray-600">Loading live comparison data...</span>
       </div>
     )
   }
@@ -182,16 +144,16 @@ const Compare = () => {
           Compare Franchise Opportunities
         </h1>
         <p className="text-lg text-gray-600">
-          Select up to 3 franchises to compare side-by-side
+          Select up to 3 franchises to compare side-by-side using live data
         </p>
       </motion.div>
 
-      {/* Data Source Status */}
+      {/* Connection Status */}
       <motion.div 
         className={`rounded-lg p-4 ${
-          dataSource === 'live' 
+          connectionStatus?.success 
             ? 'bg-green-50 border border-green-200' 
-            : 'bg-yellow-50 border border-yellow-200'
+            : 'bg-red-50 border border-red-200'
         }`}
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -199,21 +161,33 @@ const Compare = () => {
       >
         <div className="flex items-center space-x-2">
           <SafeIcon 
-            icon={FiDatabase} 
+            icon={connectionStatus?.success ? FiCheckCircle : FiDatabase} 
             className={`w-5 h-5 ${
-              dataSource === 'live' ? 'text-green-600' : 'text-yellow-600'
+              connectionStatus?.success ? 'text-green-600' : 'text-red-600'
             }`} 
           />
           <span className={`font-medium ${
-            dataSource === 'live' ? 'text-green-800' : 'text-yellow-800'
+            connectionStatus?.success ? 'text-green-800' : 'text-red-800'
           }`}>
-            {dataSource === 'live' 
-              ? `✅ Live comparison data available`
-              : `⚠️ Using sample comparison data`
+            {connectionStatus?.success 
+              ? `✅ Live comparison data from ${franchises.length} franchise records`
+              : `❌ Database connection failed - ${connectionStatus?.error || 'Unknown error'}`
             }
           </span>
         </div>
       </motion.div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-700">{error}</p>
+          <button 
+            onClick={loadFranchises}
+            className="mt-2 text-red-600 underline hover:text-red-800"
+          >
+            Retry loading data
+          </button>
+        </div>
+      )}
 
       {/* Franchise Selection */}
       <motion.div 
@@ -257,7 +231,7 @@ const Compare = () => {
                 >
                   <div className="aspect-video bg-gray-200 relative overflow-hidden">
                     <img 
-                      src={franchise.image || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop'} 
+                      src={franchise.logo_url || franchise.image_url || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop'} 
                       alt={franchise.name}
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -273,7 +247,7 @@ const Compare = () => {
                   
                   <div className="p-4">
                     <h3 className="font-heading text-lg font-semibold text-gray-900 mb-1">
-                      {franchise.name}
+                      {franchise.name || franchise.brand_name}
                     </h3>
                     <p className="text-sm text-gray-600 mb-2">
                       {franchise.category || 'General'}
@@ -281,8 +255,8 @@ const Compare = () => {
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-500">Investment</span>
                       <span className="font-medium text-gray-900">
-                        {franchise.investment_min && franchise.investment_max 
-                          ? `$${franchise.investment_min.toLocaleString()} - $${franchise.investment_max.toLocaleString()}`
+                        {getComparisonValue(franchise, { key: 'total_investment_min' }) && getComparisonValue(franchise, { key: 'total_investment_max' })
+                          ? `${formatValue(getComparisonValue(franchise, { key: 'total_investment_min' }), 'currency')} - ${formatValue(getComparisonValue(franchise, { key: 'total_investment_max' }), 'currency')}`
                           : 'Contact for details'
                         }
                       </span>
@@ -304,7 +278,7 @@ const Compare = () => {
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           <h2 className="font-heading text-2xl font-semibold text-gray-900">
-            Comparison ({selectedFranchises.length} franchise{selectedFranchises.length > 1 ? 's' : ''})
+            Live Data Comparison ({selectedFranchises.length} franchise{selectedFranchises.length > 1 ? 's' : ''})
           </h2>
 
           <Card className="overflow-hidden">
@@ -318,7 +292,7 @@ const Compare = () => {
                     {selectedFranchises.map(franchise => (
                       <th key={franchise.id} className="text-left p-4 font-medium text-gray-900 min-w-48">
                         <div className="space-y-2">
-                          <div className="font-heading text-lg">{franchise.name}</div>
+                          <div className="font-heading text-lg">{franchise.name || franchise.brand_name}</div>
                           <div className="text-sm text-gray-600 font-normal">{franchise.category || 'General'}</div>
                         </div>
                       </th>
@@ -336,7 +310,7 @@ const Compare = () => {
                       </td>
                       {selectedFranchises.map(franchise => (
                         <td key={franchise.id} className="p-4 text-gray-900">
-                          {metric.format(franchise[metric.key])}
+                          {formatValue(getComparisonValue(franchise, metric), metric.type)}
                         </td>
                       ))}
                     </tr>
@@ -357,14 +331,14 @@ const Compare = () => {
         </motion.div>
       )}
 
-      {selectedFranchises.length === 0 && (
+      {selectedFranchises.length === 0 && !error && (
         <div className="text-center py-12">
           <SafeIcon icon={FiBarChart3} className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="font-heading text-2xl font-semibold text-gray-900 mb-2">
             No franchises selected
           </h3>
           <p className="text-gray-600 mb-6">
-            Choose up to 3 franchises from the list above to start comparing their key metrics
+            Choose up to 3 franchises from the live data above to start comparing their key metrics
           </p>
           <Button size="lg">
             Browse All Franchises
