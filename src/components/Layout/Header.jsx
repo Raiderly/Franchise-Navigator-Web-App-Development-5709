@@ -9,7 +9,7 @@ import AuthModal from '../Auth/AuthModal'
 import { useAuth } from '../../contexts/AuthContext'
 
 const {
-  FiCompass, FiHome, FiSearch, FiBarChart3, FiHeart, FiMessageCircle,
+  FiHome, FiSearch, FiBarChart3, FiHeart, FiMessageCircle,
   FiUser, FiLogOut, FiMenu, FiX
 } = FiIcons
 
@@ -19,6 +19,9 @@ const Header = () => {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
+
+  // Check if we're on homepage
+  const isHome = location.pathname === '/'
 
   const navItems = [
     { path: '/', label: 'Home', icon: FiHome },
@@ -36,23 +39,24 @@ const Header = () => {
 
   return (
     <header 
-      className="w-full z-50 fixed top-0"
-      style={{ 
-        backgroundColor: '#5d20d6',
-        margin: 0,
-        padding: 0,
-        border: 'none',
-        boxShadow: 'none'
-      }}
+      className={`w-full z-50 fixed top-0 ${isHome ? '' : 'shadow-sm'}`}
+      style={{ backgroundColor: '#5d20d6' }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 group">
-            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-              <SafeIcon icon={FiCompass} className="w-5 h-5 text-[#5d20d6]" />
-            </div>
-            <span className="font-heading font-bold text-xl text-white">
+          {/* ✅ FIXED: Logo with uploaded image */}
+          <Link to="/" className="flex items-center group">
+            <img
+              src="/logo.png"
+              alt="Franchise Navigator"
+              className="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-200"
+              onError={(e) => {
+                // Fallback to text logo if image fails to load
+                e.target.style.display = 'none'
+                e.target.nextSibling.style.display = 'block'
+              }}
+            />
+            <span className="font-heading font-bold text-xl text-white ml-3 hidden">
               Franchise Navigator
             </span>
           </Link>

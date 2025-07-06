@@ -13,28 +13,32 @@ body {
   padding: 0;
 }
 
-/* Hero Section Specific Styles */
-.hero-section {
-  background-image: url('https://app1.sharemyimage.com/2025/07/06/Copy-of-franchisefinder.-1800-x-600-px-2.png');
-  background-color: #5d20d6;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  width: 100vw;
-  height: 100vh;
-  margin: 0;
-  padding: 0;
-  position: relative;
+/* Homepage-specific styles - Zero spacing between nav and hero */
+.homepage-layout {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
 }
 
-/* Navigation Bar */
+/* Navigation Bar - Fixed purple background */
 nav {
   background-color: #5d20d6;
   color: #ffffff;
-  margin: 0;
-  padding: 0;
   border: none;
   box-shadow: none;
+}
+
+/* Logo specific styling */
+.nav-logo {
+  height: 48px;
+  object-fit: contain;
+  max-width: 200px;
+}
+
+/* Mobile responsive logo */
+@media (max-width: 640px) {
+  .nav-logo {
+    height: 40px;
+  }
 }
 
 /* Custom scrollbar */
@@ -160,4 +164,33 @@ html {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Ensure hero section takes full width on homepage */
+.hero-section {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+}
+
+/* Fix any layout jumbling */
+.homepage-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Ensure proper stacking order */
+.hero-content {
+  position: relative;
+  z-index: 10;
+}
+
+.hero-search {
+  position: relative;
+  z-index: 20;
+}
+
+.play-button {
+  position: fixed;
+  z-index: 25;
 }

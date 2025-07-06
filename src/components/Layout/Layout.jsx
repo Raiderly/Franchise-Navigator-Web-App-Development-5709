@@ -1,9 +1,12 @@
 import React, { useEffect } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import Header from './Header'
 import LiveChatProvider from '../LiveChat/LiveChatProvider'
 
 const Layout = () => {
+  const location = useLocation()
+  const isHome = location.pathname === '/'
+
   useEffect(() => {
     console.log('🏗️ Layout mounted - LiveAgent should be initializing')
     
@@ -22,9 +25,10 @@ const Layout = () => {
 
   return (
     <LiveChatProvider>
-      <div className="min-h-screen bg-gray-50" style={{ margin: 0, padding: 0 }}>
+      <div className="min-h-screen bg-gray-50">
         <Header />
-        <main style={{ paddingTop: 0, margin: 0 }}>
+        {/* Homepage gets zero top padding, other pages get standard nav spacing */}
+        <main className={isHome ? 'pt-0' : 'pt-16'}>
           <Outlet />
         </main>
       </div>

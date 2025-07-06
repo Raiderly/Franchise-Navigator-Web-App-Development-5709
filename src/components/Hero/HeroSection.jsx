@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import * as FiIcons from 'react-icons/fi'
 import SafeIcon from '../../common/SafeIcon'
@@ -7,6 +8,8 @@ import Button from '../UI/Button'
 const { FiSearch, FiPlay } = FiIcons
 
 const HeroSection = () => {
+  const location = useLocation()
+  const isHome = location.pathname === '/'
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [selectedLocation, setSelectedLocation] = useState('')
@@ -14,6 +17,8 @@ const HeroSection = () => {
 
   // Load Wistia script and initialize
   useEffect(() => {
+    if (!isHome) return // Only load on homepage
+
     // Check if Wistia script is already loaded
     if (window.Wistia || document.getElementById('wistia-script')) {
       console.log('✅ Wistia already loaded')
@@ -40,7 +45,7 @@ const HeroSection = () => {
       console.error('❌ Failed to load Wistia script')
     }
     document.head.appendChild(script)
-  }, [])
+  }, [isHome])
 
   const handleWatchVideo = () => {
     console.log('🎬 Video play button clicked')
@@ -122,54 +127,51 @@ const HeroSection = () => {
     'Over $1M'
   ]
 
+  // Only render hero section on homepage
+  if (!isHome) {
+    return null
+  }
+
   return (
     <>
+      {/* ✅ FIXED: Hero Section - Clean, no duplicates, play button INSIDE hero */}
       <section 
-        className="hero-section relative"
+        className="relative w-full min-h-screen bg-[#5d20d6] overflow-hidden"
         style={{
           backgroundImage: `url('https://app1.sharemyimage.com/2025/07/06/Copy-of-franchisefinder.-1800-x-600-px-2.png')`,
-          backgroundColor: '#5d20d6',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          width: '100vw',
-          height: '100vh',
-          margin: 0,
-          padding: 0,
+          marginTop: '0',
           paddingTop: '64px' // Account for fixed nav height
         }}
       >
-        {/* Content Container - Positioned in lower half */}
-        <div className="relative z-10 w-full h-full flex items-end px-4 sm:px-6 lg:px-8 pb-16">
-          <div className="max-w-4xl mx-auto w-full">
+        {/* Content Container */}
+        <div className="relative z-20 flex flex-col justify-center min-h-screen px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto w-full">
+            {/* Main Heading - Higher z-index */}
             <motion.div
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="space-y-8"
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-center mb-12 relative z-30"
             >
-              {/* Main Heading */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-center"
-              >
-                <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
-                  Find the Right Franchise Opportunity in Australia
-                </h1>
-                <p className="text-xl md:text-2xl text-white/90 font-medium max-w-3xl mx-auto leading-relaxed">
-                  Search & compare franchises by industry, investment level, and location. Australia's most dynamic franchise directory.
-                </p>
-              </motion.div>
+              <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+                Find the Right Franchise Opportunity in Australia
+              </h1>
+              <p className="text-xl md:text-2xl text-white/90 font-medium max-w-4xl mx-auto leading-relaxed">
+                Search & compare franchises by industry, investment level, and location. Australia's most dynamic franchise directory.
+              </p>
+            </motion.div>
 
-              {/* Search Interface */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl"
-              >
+            {/* Search Interface - Below heading, above fold */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="relative z-30 max-w-5xl mx-auto"
+            >
+              <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl">
                 <div className="space-y-4">
                   {/* Main Search Bar */}
                   <div className="relative">
@@ -240,28 +242,31 @@ const HeroSection = () => {
                     </Button>
                   </div>
                 </div>
-              </motion.div>
+              </div>
+            </motion.div>
+
+            {/* ✅ FIXED: Play Button - Now RELATIVE to hero container, not fixed to viewport */}
+            <motion.div
+              className="flex justify-center mt-16 relative z-30"
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+            >
+              <motion.button
+                onClick={handleWatchVideo}
+                className="w-20 h-20 bg-white rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center group transition-all duration-300"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <SafeIcon icon={FiPlay} className="w-8 h-8 text-[#5d20d6] ml-1 group-hover:scale-110 transition-transform duration-300" />
+                
+                {/* Pulse Rings */}
+                <div className="absolute inset-0 rounded-full border-2 border-[#5d20d6]/30 animate-ping"></div>
+                <div className="absolute inset-0 rounded-full border-2 border-[#5d20d6]/20 animate-ping" style={{ animationDelay: '1s' }}></div>
+              </motion.button>
             </motion.div>
           </div>
         </div>
-
-        {/* Floating Video Play Button - Center positioned */}
-        <motion.button
-          id="play-button"
-          onClick={handleWatchVideo}
-          className="absolute bottom-8 right-8 w-16 h-16 bg-white/90 backdrop-blur-sm rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center group transition-all duration-300 hover:scale-110"
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <SafeIcon icon={FiPlay} className="w-6 h-6 text-[#5d20d6] ml-1 group-hover:scale-110 transition-transform duration-300" />
-          
-          {/* Pulse Rings */}
-          <div className="absolute inset-0 rounded-full border-2 border-[#5d20d6]/30 animate-ping"></div>
-          <div className="absolute inset-0 rounded-full border-2 border-[#5d20d6]/20 animate-ping" style={{ animationDelay: '1s' }}></div>
-        </motion.button>
       </section>
 
       {/* Hidden Wistia Embed - Required for Popover */}

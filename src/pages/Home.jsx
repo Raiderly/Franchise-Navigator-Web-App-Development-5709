@@ -6,6 +6,8 @@ import SafeIcon from '../common/SafeIcon'
 import Button from '../components/UI/Button'
 import Card from '../components/UI/Card'
 import HeroSection from '../components/Hero/HeroSection'
+import DueDiligenceHighlight from '../components/Hero/DueDiligenceHighlight'
+import FranchiseShowcase from '../components/Interactive/FranchiseShowcase'
 import { franchiseService } from '../lib/supabase'
 
 const {
@@ -230,8 +232,14 @@ const Home = () => {
 
   return (
     <div className="space-y-16">
-      {/* New Hero Section */}
+      {/* Hero Section - Only renders on homepage */}
       <HeroSection />
+
+      {/* Due Diligence Highlight Section */}
+      <DueDiligenceHighlight />
+
+      {/* ✅ NEW: Interactive Franchise Showcase */}
+      <FranchiseShowcase />
 
       {/* Featured Franchise Profiles */}
       <motion.section
@@ -612,9 +620,8 @@ const Home = () => {
               Built for Australian Franchising Code Compliance
             </h3>
             <p className="text-gray-600 text-sm max-w-2xl mx-auto">
-              Our platform is designed to help users navigate Australian franchising
-              regulations and requirements. All content is provided for educational
-              purposes and should not be considered legal or financial advice.
+              Our platform is designed to help users navigate Australian franchising regulations and requirements.
+              All content is provided for educational purposes and should not be considered legal or financial advice.
             </p>
           </div>
 
@@ -636,8 +643,7 @@ const Home = () => {
           <div className="text-xs text-gray-500 pt-4 border-t border-gray-200">
             <p>
               This platform provides educational resources and tools for franchise research.
-              Always consult with qualified legal and financial professionals before making
-              investment decisions.
+              Always consult with qualified legal and financial professionals before making investment decisions.
             </p>
           </div>
         </div>
