@@ -1,6 +1,42 @@
 @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@300;400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* Global Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Hero Section Specific Styles */
+.hero-section {
+  background-image: url('https://app1.sharemyimage.com/2025/07/06/Copy-of-franchisefinder.-1800-x-600-px-2.png');
+  background-color: #5d20d6;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+/* Navigation Bar */
+nav {
+  background-color: #5d20d6;
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -12,12 +48,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #440088;
+  background: #5d20d6;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #330066;
+  background: #4a1ab8;
 }
 
 /* Line clamp utility */
@@ -53,22 +89,22 @@ html {
 }
 
 @keyframes slideUp {
-  from { 
+  from {
     transform: translateY(10px);
     opacity: 0;
   }
-  to { 
+  to {
     transform: translateY(0);
     opacity: 1;
   }
 }
 
 @keyframes scaleIn {
-  from { 
+  from {
     transform: scale(0.95);
     opacity: 0;
   }
-  to { 
+  to {
     transform: scale(1);
     opacity: 1;
   }
@@ -88,7 +124,7 @@ html {
 
 /* Custom gradient backgrounds */
 .bg-gradient-primary {
-  background: linear-gradient(135deg, #440088 0%, #330066 100%);
+  background: linear-gradient(135deg, #5d20d6 0%, #4a1ab8 100%);
 }
 
 .bg-gradient-accent {
@@ -112,7 +148,6 @@ html {
   .border-gray-200 {
     border-color: #000;
   }
-  
   .text-gray-600 {
     color: #000;
   }

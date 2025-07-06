@@ -18,14 +18,13 @@ const Layout = () => {
     
     setTimeout(checkGlobalLiveAgent, 2000)
     setTimeout(checkGlobalLiveAgent, 5000)
-    
   }, [])
 
   return (
     <LiveChatProvider>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50" style={{ margin: 0, padding: 0 }}>
         <Header />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main style={{ paddingTop: 0, margin: 0 }}>
           <Outlet />
         </main>
       </div>

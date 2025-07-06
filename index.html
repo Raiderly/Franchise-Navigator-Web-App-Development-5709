@@ -23,6 +23,18 @@
         filter: blur(5px);
         padding-top: 55.94%;
       }
+      
+      /* Global styles for seamless layout */
+      body, html {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+      }
+      
+      #root {
+        margin: 0;
+        padding: 0;
+      }
     </style>
   </head>
   <body>
@@ -31,6 +43,9 @@
     
     <!-- Wistia Global Functions -->
     <script>
+      // Initialize Wistia queue
+      window._wq = window._wq || [];
+      
       // Multiple Wistia integration methods
       window.playWistiaVideo = function(mediaId) {
         console.log('🎬 Global Wistia function called with:', mediaId)
@@ -64,6 +79,7 @@
         }
         
         console.warn('⚠️ Wistia not ready, trying fallback...')
+        
         // Fallback retry
         setTimeout(() => {
           if (window.Wistia && window.Wistia.popover) {
@@ -77,12 +93,39 @@
       // Monitor Wistia loading
       let wistiaCheckCount = 0
       const maxChecks = 30
+      
       const monitorWistia = () => {
         wistiaCheckCount++
         if (window.Wistia) {
           console.log('✅ Wistia loaded successfully! Available methods:', Object.keys(window.Wistia))
           if (window.Wistia.api) console.log('✅ Wistia API available')
           if (window.Wistia.popover) console.log('✅ Wistia popover available')
+          
+          // Initialize video configuration
+          window._wq.push({
+            id: "xjm8bzabrc",
+            options: {
+              autoPlay: false,
+              popover: true
+            }
+          })
+          
+          // Add click listener to play button
+          const addPlayButtonListener = () => {
+            const playButton = document.querySelector('#play-button')
+            if (playButton) {
+              playButton.addEventListener('click', function() {
+                if (window.Wistia && window.Wistia.api) {
+                  window.Wistia.api("xjm8bzabrc").popup()
+                }
+              })
+              console.log('✅ Play button listener added')
+            } else {
+              setTimeout(addPlayButtonListener, 1000)
+            }
+          }
+          
+          setTimeout(addPlayButtonListener, 2000)
         } else if (wistiaCheckCount < maxChecks) {
           setTimeout(monitorWistia, 500)
         } else {
@@ -103,9 +146,11 @@
     <!-- LiveAgent Debug Console Log -->
     <script>
       console.log('🔍 LiveAgent Debug: HTML loaded, waiting for React app...')
+      
       // Monitor LiveAgent loading
       let checkCount = 0
       const maxChecks = 20
+      
       const monitorLiveAgent = () => {
         checkCount++
         if (window.LiveAgent) {
@@ -117,6 +162,7 @@
           console.warn('⚠️ LiveAgent not detected after 20 seconds')
         }
       }
+      
       // Start monitoring after DOM is ready
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
@@ -149,6 +195,7 @@
         s.onerror = function() {
           console.error('❌ Failed to load LiveAgent script from HTML')
         }
+        
         // Insert script with fallback
         try {
           if (t && t.parentElement) {
@@ -174,5 +221,8 @@
         }
       });
     </script>
+    
+    <!-- Hidden Wistia Embed for Popover -->
+    <div class="wistia_embed wistia_async_xjm8bzabrc popover=true" style="display:none;"></div>
   </body>
 </html>

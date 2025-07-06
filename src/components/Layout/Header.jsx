@@ -8,7 +8,10 @@ import ChatButton from '../UI/ChatButton'
 import AuthModal from '../Auth/AuthModal'
 import { useAuth } from '../../contexts/AuthContext'
 
-const { FiCompass, FiHome, FiSearch, FiBarChart3, FiHeart, FiMessageCircle, FiUser, FiLogOut, FiMenu, FiX } = FiIcons
+const {
+  FiCompass, FiHome, FiSearch, FiBarChart3, FiHeart, FiMessageCircle,
+  FiUser, FiLogOut, FiMenu, FiX
+} = FiIcons
 
 const Header = () => {
   const location = useLocation()
@@ -32,15 +35,24 @@ const Header = () => {
   }
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <header 
+      className="w-full z-50 fixed top-0"
+      style={{ 
+        backgroundColor: '#5d20d6',
+        margin: 0,
+        padding: 0,
+        border: 'none',
+        boxShadow: 'none'
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 group">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-              <SafeIcon icon={FiCompass} className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
+              <SafeIcon icon={FiCompass} className="w-5 h-5 text-[#5d20d6]" />
             </div>
-            <span className="font-heading font-bold text-xl text-gray-900">
+            <span className="font-heading font-bold text-xl text-white">
               Franchise Navigator
             </span>
           </Link>
@@ -53,10 +65,10 @@ const Header = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`relative px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`relative px-3 py-2 rounded-lg text-sm font-bold transition-colors ${
                     isActive
-                      ? 'text-primary bg-primary/5'
-                      : 'text-gray-600 hover:text-primary hover:bg-gray-50'
+                      ? 'text-white bg-white/20'
+                      : 'text-white/90 hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <div className="flex items-center space-x-2">
@@ -66,7 +78,7 @@ const Header = () => {
                   {isActive && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute inset-0 bg-primary/5 rounded-lg border border-primary/20"
+                      className="absolute inset-0 bg-white/20 rounded-lg"
                       initial={false}
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                     />
@@ -80,7 +92,7 @@ const Header = () => {
           <div className="flex items-center space-x-3">
             {/* Live Chat Button */}
             <div className="hidden sm:block">
-              <ChatButton variant="ghost" size="sm">
+              <ChatButton variant="ghost" size="sm" className="text-white hover:bg-white/10 border-white/30">
                 Support
               </ChatButton>
             </div>
@@ -89,12 +101,12 @@ const Header = () => {
               <div className="relative">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex items-center space-x-2 p-2 rounded-lg hover:bg-white/10 transition-colors"
                 >
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                    <SafeIcon icon={FiUser} className="w-4 h-4 text-white" />
+                  <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                    <SafeIcon icon={FiUser} className="w-4 h-4 text-[#5d20d6]" />
                   </div>
-                  <span className="hidden sm:block text-sm font-medium text-gray-700">
+                  <span className="hidden sm:block text-sm font-medium text-white">
                     {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
                   </span>
                 </button>
@@ -134,6 +146,7 @@ const Header = () => {
               <Button
                 onClick={() => setShowAuthModal(true)}
                 size="sm"
+                className="bg-white text-[#5d20d6] hover:bg-gray-100 font-bold"
               >
                 Sign In
               </Button>
@@ -142,9 +155,9 @@ const Header = () => {
             {/* Mobile menu button */}
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
             >
-              <SafeIcon icon={showMobileMenu ? FiX : FiMenu} className="w-5 h-5 text-gray-600" />
+              <SafeIcon icon={showMobileMenu ? FiX : FiMenu} className="w-5 h-5 text-white" />
             </button>
           </div>
         </div>
@@ -154,7 +167,7 @@ const Header = () => {
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
-            className="md:hidden border-t border-gray-200 py-4"
+            className="md:hidden border-t border-white/20 py-4"
           >
             <nav className="space-y-2">
               {navItems.map((item) => {
@@ -166,8 +179,8 @@ const Header = () => {
                     onClick={() => setShowMobileMenu(false)}
                     className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       isActive
-                        ? 'text-primary bg-primary/5'
-                        : 'text-gray-600 hover:text-primary hover:bg-gray-50'
+                        ? 'text-white bg-white/20'
+                        : 'text-white/90 hover:text-white hover:bg-white/10'
                     }`}
                   >
                     <SafeIcon icon={item.icon} className="w-4 h-4" />
@@ -175,10 +188,9 @@ const Header = () => {
                   </Link>
                 )
               })}
-              
               {/* Mobile Chat Button */}
               <div className="px-3 py-2">
-                <ChatButton variant="ghost" size="sm" className="w-full justify-start">
+                <ChatButton variant="ghost" size="sm" className="w-full justify-start text-white hover:bg-white/10">
                   Live Support
                 </ChatButton>
               </div>
@@ -188,7 +200,7 @@ const Header = () => {
       </div>
 
       {/* Auth Modal */}
-      <AuthModal 
+      <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         initialMode="signin"
@@ -196,8 +208,8 @@ const Header = () => {
 
       {/* Backdrop for user menu */}
       {showUserMenu && (
-        <div 
-          className="fixed inset-0 z-40" 
+        <div
+          className="fixed inset-0 z-40"
           onClick={() => setShowUserMenu(false)}
         />
       )}
