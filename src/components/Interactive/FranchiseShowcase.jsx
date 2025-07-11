@@ -23,28 +23,30 @@ const FranchiseShowcase = () => {
   ]
 
   return (
-    <MouseImageTrail
-      renderImageBuffer={50}
-      rotationRange={25}
-      images={franchiseLogos}
-    >
-      <section className="grid h-screen w-full place-content-center bg-white">
-        <div className="text-center space-y-6">
-          <p className="flex items-center justify-center gap-3 text-4xl font-bold uppercase text-black">
-            <FiMousePointer className="text-[#5d20d6]" />
-            <span>Every Single Australian Franchise Network</span>
-          </p>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Move your mouse around to explore franchise logos from across Australia. 
-            Our comprehensive database includes every registered franchise opportunity.
-          </p>
-          <div className="mt-8 text-sm text-gray-500 flex items-center justify-center gap-2">
-            <FiMousePointer className="w-4 h-4" />
-            <span>Hover and move your cursor to see franchise brands</span>
+    <section className="relative">
+      <MouseImageTrail
+        renderImageBuffer={50}
+        rotationRange={25}
+        images={franchiseLogos}
+      >
+        <div className="grid h-screen w-full place-content-center bg-white relative z-10">
+          <div className="text-center space-y-6">
+            <p className="flex items-center justify-center gap-3 text-4xl font-bold uppercase text-black">
+              <FiMousePointer className="text-[#5d20d6]" />
+              <span>Every Single Australian Franchise Network</span>
+            </p>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Move your mouse around to explore franchise logos from across Australia. 
+              Our comprehensive database includes every registered franchise opportunity.
+            </p>
+            <div className="mt-8 text-sm text-gray-500 flex items-center justify-center gap-2">
+              <FiMousePointer className="w-4 h-4" />
+              <span>Hover and move your cursor to see franchise brands</span>
+            </div>
           </div>
         </div>
-      </section>
-    </MouseImageTrail>
+      </MouseImageTrail>
+    </section>
   )
 }
 

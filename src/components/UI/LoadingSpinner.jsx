@@ -13,7 +13,11 @@ const LoadingSpinner = ({ size = 'md', className = '' }) => {
       <motion.div
         className={`${sizes[size]} border-2 border-gray-200 border-t-primary rounded-full`}
         animate={{ rotate: 360 }}
-        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        transition={{
+          duration: 1,
+          repeat: Infinity,
+          ease: "linear"
+        }}
       />
     </div>
   )

@@ -8,10 +8,7 @@ import ChatButton from '../UI/ChatButton'
 import AuthModal from '../Auth/AuthModal'
 import { useAuth } from '../../contexts/AuthContext'
 
-const {
-  FiHome, FiSearch, FiBarChart3, FiHeart, FiMessageCircle,
-  FiUser, FiLogOut, FiMenu, FiX
-} = FiIcons
+const { FiHome, FiSearch, FiBarChart3, FiHeart, FiMessageCircle, FiUser, FiLogOut, FiMenu, FiX } = FiIcons
 
 const Header = () => {
   const location = useLocation()
@@ -44,19 +41,9 @@ const Header = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* ✅ FIXED: Logo with uploaded image */}
+          {/* Logo */}
           <Link to="/" className="flex items-center group">
-            <img
-              src="/logo.png"
-              alt="Franchise Navigator"
-              className="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-200"
-              onError={(e) => {
-                // Fallback to text logo if image fails to load
-                e.target.style.display = 'none'
-                e.target.nextSibling.style.display = 'block'
-              }}
-            />
-            <span className="font-heading font-bold text-xl text-white ml-3 hidden">
+            <span className="font-heading font-bold text-xl text-white">
               Franchise Navigator
             </span>
           </Link>
@@ -70,8 +57,8 @@ const Header = () => {
                   key={item.path}
                   to={item.path}
                   className={`relative px-3 py-2 rounded-lg text-sm font-bold transition-colors ${
-                    isActive
-                      ? 'text-white bg-white/20'
+                    isActive 
+                      ? 'text-white bg-white/20' 
                       : 'text-white/90 hover:text-white hover:bg-white/10'
                   }`}
                 >
@@ -182,8 +169,8 @@ const Header = () => {
                     to={item.path}
                     onClick={() => setShowMobileMenu(false)}
                     className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      isActive
-                        ? 'text-white bg-white/20'
+                      isActive 
+                        ? 'text-white bg-white/20' 
                         : 'text-white/90 hover:text-white hover:bg-white/10'
                     }`}
                   >
@@ -212,9 +199,9 @@ const Header = () => {
 
       {/* Backdrop for user menu */}
       {showUserMenu && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setShowUserMenu(false)}
+        <div 
+          className="fixed inset-0 z-40" 
+          onClick={() => setShowUserMenu(false)} 
         />
       )}
     </header>

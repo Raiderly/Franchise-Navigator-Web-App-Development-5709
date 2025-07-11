@@ -29,21 +29,18 @@ const HeroSection = () => {
     script.id = 'wistia-script'
     script.src = 'https://fast.wistia.com/assets/external/E-v1.js'
     script.async = true
+
     script.onload = () => {
       console.log('✅ Wistia script loaded successfully')
       // Initialize Wistia queue
       window._wq = window._wq || []
-      window._wq.push({
-        id: "xjm8bzabrc",
-        options: {
-          autoPlay: false,
-          popover: true
-        }
-      })
+      window._wq.push({ id: "xjm8bzabrc", options: { autoPlay: false, popover: true } })
     }
+
     script.onerror = () => {
       console.error('❌ Failed to load Wistia script')
     }
+
     document.head.appendChild(script)
   }, [isHome])
 
@@ -84,14 +81,20 @@ const HeroSection = () => {
   }
 
   const handleSearch = () => {
-    console.log('🔍 Search triggered:', { searchTerm, selectedCategory, selectedLocation, selectedInvestment })
+    console.log('🔍 Search triggered:', {
+      searchTerm,
+      selectedCategory,
+      selectedLocation,
+      selectedInvestment
+    })
+
     // Navigate to browse page with filters
     const params = new URLSearchParams()
     if (searchTerm) params.set('search', searchTerm)
     if (selectedCategory) params.set('category', selectedCategory)
     if (selectedLocation) params.set('location', selectedLocation)
     if (selectedInvestment) params.set('investment', selectedInvestment)
-    
+
     const queryString = params.toString()
     window.location.href = `/browse${queryString ? '?' + queryString : ''}`
   }
@@ -134,7 +137,7 @@ const HeroSection = () => {
 
   return (
     <>
-      {/* ✅ FIXED: Hero Section - Clean, no duplicates, play button INSIDE hero */}
+      {/* Hero Section with proper z-index layering */}
       <section 
         className="relative w-full min-h-screen bg-[#5d20d6] overflow-hidden"
         style={{
@@ -146,10 +149,10 @@ const HeroSection = () => {
           paddingTop: '64px' // Account for fixed nav height
         }}
       >
-        {/* Content Container */}
+        {/* Content Container with proper z-index */}
         <div className="relative z-20 flex flex-col justify-center min-h-screen px-4 sm:px-6 lg:px-8">
           <div className="max-w-6xl mx-auto w-full">
-            {/* Main Heading - Higher z-index */}
+            {/* Main Heading */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -160,11 +163,12 @@ const HeroSection = () => {
                 Find the Right Franchise Opportunity in Australia
               </h1>
               <p className="text-xl md:text-2xl text-white/90 font-medium max-w-4xl mx-auto leading-relaxed">
-                Search & compare franchises by industry, investment level, and location. Australia's most dynamic franchise directory.
+                Search & compare franchises by industry, investment level, and location. 
+                Australia's most dynamic franchise directory.
               </p>
             </motion.div>
 
-            {/* Search Interface - Below heading, above fold */}
+            {/* Search Interface */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -175,7 +179,10 @@ const HeroSection = () => {
                 <div className="space-y-4">
                   {/* Main Search Bar */}
                   <div className="relative">
-                    <SafeIcon icon={FiSearch} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <SafeIcon 
+                      icon={FiSearch} 
+                      className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" 
+                    />
                     <input
                       type="text"
                       placeholder="Search franchises by name, brand, or keyword..."
@@ -245,24 +252,29 @@ const HeroSection = () => {
               </div>
             </motion.div>
 
-            {/* ✅ FIXED: Play Button - Now RELATIVE to hero container, not fixed to viewport */}
+            {/* Play Button with proper z-index */}
             <motion.div
-              className="flex justify-center mt-16 relative z-30"
+              className="flex justify-center mt-16 relative z-40"
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.8 }}
             >
               <motion.button
                 onClick={handleWatchVideo}
-                className="w-20 h-20 bg-white rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center group transition-all duration-300"
+                className="w-20 h-20 bg-white rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center group transition-all duration-300 relative z-50"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <SafeIcon icon={FiPlay} className="w-8 h-8 text-[#5d20d6] ml-1 group-hover:scale-110 transition-transform duration-300" />
-                
+                <SafeIcon 
+                  icon={FiPlay} 
+                  className="w-8 h-8 text-[#5d20d6] ml-1 group-hover:scale-110 transition-transform duration-300" 
+                />
                 {/* Pulse Rings */}
                 <div className="absolute inset-0 rounded-full border-2 border-[#5d20d6]/30 animate-ping"></div>
-                <div className="absolute inset-0 rounded-full border-2 border-[#5d20d6]/20 animate-ping" style={{ animationDelay: '1s' }}></div>
+                <div 
+                  className="absolute inset-0 rounded-full border-2 border-[#5d20d6]/20 animate-ping" 
+                  style={{ animationDelay: '1s' }}
+                ></div>
               </motion.button>
             </motion.div>
           </div>

@@ -71,9 +71,7 @@ const SaveButton = ({ franchiseId, onAuthRequired, className = '' }) => {
     >
       <SafeIcon 
         icon={FiHeart} 
-        className={`w-4 h-4 transition-all duration-200 ${
-          isSaved ? 'fill-current' : ''
-        }`} 
+        className={`w-4 h-4 transition-all duration-200 ${isSaved ? 'fill-current' : ''}`} 
       />
     </motion.button>
   )

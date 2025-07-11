@@ -27,20 +27,6 @@ nav {
   box-shadow: none;
 }
 
-/* Logo specific styling */
-.nav-logo {
-  height: 48px;
-  object-fit: contain;
-  max-width: 200px;
-}
-
-/* Mobile responsive logo */
-@media (max-width: 640px) {
-  .nav-logo {
-    height: 40px;
-  }
-}
-
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -93,25 +79,13 @@ html {
 }
 
 @keyframes slideUp {
-  from {
-    transform: translateY(10px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes scaleIn {
-  from {
-    transform: scale(0.95);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .animate-fade-in {
@@ -166,31 +140,23 @@ html {
   }
 }
 
-/* Ensure hero section takes full width on homepage */
-.hero-section {
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
-  margin-right: calc(-50vw + 50%);
-}
-
-/* Fix any layout jumbling */
-.homepage-content {
-  position: relative;
-  z-index: 1;
-}
-
-/* Ensure proper stacking order */
+/* Z-index layering for proper interaction */
 .hero-content {
-  position: relative;
-  z-index: 10;
-}
-
-.hero-search {
   position: relative;
   z-index: 20;
 }
 
+.hero-search {
+  position: relative;
+  z-index: 30;
+}
+
 .play-button {
-  position: fixed;
-  z-index: 25;
+  position: relative;
+  z-index: 40;
+}
+
+.mouse-trail-section {
+  position: relative;
+  z-index: 10;
 }

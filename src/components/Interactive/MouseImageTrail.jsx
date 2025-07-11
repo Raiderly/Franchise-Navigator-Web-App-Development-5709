@@ -1,6 +1,5 @@
 import React, { useRef } from 'react'
 import { useAnimate } from 'framer-motion'
-import { FiMousePointer } from 'react-icons/fi'
 
 const MouseImageTrail = ({
   children,
@@ -88,6 +87,11 @@ const MouseImageTrail = ({
           alt={`Franchise logo ${index}`}
           key={index}
           data-mouse-move-index={index}
+          loading="lazy"
+          decoding="async"
+          onError={(e) => {
+            e.target.style.display = 'none'
+          }}
         />
       ))}
     </div>
